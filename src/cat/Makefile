@@ -2,26 +2,18 @@ CC = gcc
 CFLAGS = -Wall -Werror -Wextra -std=c11 -D_GNU_SOURCE
 
 
-all: s21_cat
+all: cat
 
-s21_cat:
-	${CC} ${CFLAGS} s21_cat.c -o s21_cat
+cat:
+	@${CC} ${CFLAGS} cat.c -o cat
 
 clean:
-	rm -rf s21_cat
+	@rm -rf cat *.txt
 
-leaks: s21_cat
-	leaks --atExit -- ./s21_cat -benst test_file/all_flag_tests/*
+valgrind: cat
+	@valgrind --leak-check=full --tool=memcheck --log-file=log.txt ./cat cat.c
 
-style: s21_cat
-	python3 ../../materials/linters/cpplint.py --extensions=c *.c *.h
+cppcheck: cat
+	@cppcheck --enable=all --std=c11 --inconclusive --suppress=missingIncludeSystem *.c
 
-test: s21_cat
-	sh test.sh
-
-cppcheck: s21_cat
-	cppcheck --enable=all --suppress=missingIncludeSystem . *.c *.h
-
-checks: leaks style cppcheck
-
-rebuild: clean s21_cat
+rebuild: clean cat
